@@ -45,13 +45,33 @@ def draw_level(level_map):
     for y in range(len(level_map)):
         for x in range(len(level_map[y])):
             if level_map[y][x] == '#':
-                wall = Wall(x, y)
+                Tile('images/wall.png', x, y)
             elif level_map[y][x] == '*':
                 player = Player(x, y)
             elif level_map[y][x] == '&':
                 box = Box(x, y)
 
     return player, x, y, box
+
+class Move():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.rect = Player.rect
+
+
+    def move_up(self):
+        self.rect.y -= 40
+
+    def move_down(self):
+        self.rect.y += 40
+
+    def move_left(self):
+        self.rect.x -= 40
+
+    def move_right(self):
+        self.rect.x += 40
+
 
 
 class Tile(pygame.sprite.Sprite):
@@ -64,7 +84,7 @@ class Tile(pygame.sprite.Sprite):
             self.add(walls_group, all_sprites, tiles_group)
 
 
-class Player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite, Move):
     def __init__(self, pos_x, pos_y):
         super().__init__()
         self.image = pygame.Surface((40, 40))
@@ -74,27 +94,27 @@ class Player(pygame.sprite.Sprite):
         self.speed = 40
         self.add(player_group)
 
-    def move_up(self):
-        self.rect.y -= self.speed
 
-    def move_down(self):
-        self.rect.y += self.speed
-
-    def move_left(self):
-        self.rect.x -= self.speed
-
-    def move_right(self):
-        self.rect.x += self.speed
 
 
 
 class Box(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
-        super().__init__()
+        super().__init__(boxes_group)
         self.image = pygame.transform.scale(pygame.image.load('images/box.png'), (40, 40))
-        self.rect = self.image.get_rect().move(40*pos_x, 40*pos_y)
-
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(40*pos_x, 40*pos_y)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
         self.add(all_sprites, boxes_group)
+
+    def update(self, player):
+        if pygame.sprite.collide_mask(player, self):
+            self.rect.y -= 40
+
+
+
+
 
 class Wall(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -111,7 +131,6 @@ player_group = pygame.sprite.Group()
 walls_group = pygame.sprite.Group()
 boxes_group = pygame.sprite.Group()
 
-
 def level_1():
     player, level_x, level_y, box = draw_level(load_level('level1.txt'))
     speed = 40
@@ -127,34 +146,34 @@ def level_1():
                 player.move_up()
                 if pygame.sprite.spritecollideany(player, walls_group):
                     player.move_down()
-                if pygame.sprite.spritecollideany(player, boxes_group):
-                    box.rect.y -= speed
+                boxes_group.update(player)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 player.move_down()
                 if pygame.sprite.spritecollideany(player, walls_group):
                     player.move_up()
-                if pygame.sprite.spritecollideany(player, boxes_group):
-                    box.rect.y += speed
+                if pygame.sprite.collide_mask(player, box):
+                    box.rect.y += 40
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
                 player.move_left()
                 if pygame.sprite.spritecollideany(player, walls_group):
                     player.move_right()
-                if pygame.sprite.spritecollideany(player, boxes_group):
-                    box.rect.x -= speed
+                if pygame.sprite.collide_mask(player, box):
+                    box.rect.x -= 40
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
                 player.move_right()
                 if pygame.sprite.spritecollideany(player, walls_group):
                     player.move_left()
-                if pygame.sprite.spritecollideany(player, boxes_group):
-                    box.rect.x += speed
+                if pygame.sprite.collide_mask(player, box):
+                    box.rect.x += 40
 
         window.fill((135, 206, 250))
-        all_sprites.draw(window)
-        player_group.draw(window)
         walls_group.draw(window)
+
+        boxes_group.draw(window)
+        player_group.draw(window)
         pygame.display.flip()
 
 
