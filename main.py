@@ -93,6 +93,8 @@ class Player(pygame.sprite.Sprite, Move):
         self.rect = self.rect.move(40*pos_x, 40*pos_y)
         self.speed = 40
         self.add(player_group)
+        self.x = pos_x
+        self.y = pos_y
 
 
 
@@ -110,7 +112,11 @@ class Box(pygame.sprite.Sprite):
 
     def update(self, player):
         if pygame.sprite.collide_mask(player, self):
-            self.rect.y -= 40
+            if player.rect.y == self.rect.y:
+                self.rect.y -= 40
+
+
+
 
 
 
@@ -131,7 +137,9 @@ player_group = pygame.sprite.Group()
 walls_group = pygame.sprite.Group()
 boxes_group = pygame.sprite.Group()
 
+
 def level_1():
+
     player, level_x, level_y, box = draw_level(load_level('level1.txt'))
     speed = 40
     run = True
@@ -142,11 +150,23 @@ def level_1():
             if event.type == pygame.QUIT:
                 run = False
 
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                all_sprites.empty()
+                walls_group.empty()
+                player_group.empty()
+                boxes_group.empty()
+                run = False
+                level_1()
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
                 player.move_up()
                 if pygame.sprite.spritecollideany(player, walls_group):
                     player.move_down()
-                boxes_group.update(player)
+                if pygame.sprite.collide_mask(player, box):
+                    box.rect.y -= 40
+                    if pygame.sprite.spritecollideany(box, walls_group):
+                        box.rect.y += 40
+                        player.move_down()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 player.move_down()
@@ -154,6 +174,9 @@ def level_1():
                     player.move_up()
                 if pygame.sprite.collide_mask(player, box):
                     box.rect.y += 40
+                    if pygame.sprite.spritecollideany(box, walls_group):
+                        box.rect.y -= 40
+                        player.move_up()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
                 player.move_left()
@@ -161,6 +184,9 @@ def level_1():
                     player.move_right()
                 if pygame.sprite.collide_mask(player, box):
                     box.rect.x -= 40
+                    if pygame.sprite.spritecollideany(box, walls_group):
+                        box.rect.x += 40
+                        player.move_right()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
                 player.move_right()
@@ -168,6 +194,9 @@ def level_1():
                     player.move_left()
                 if pygame.sprite.collide_mask(player, box):
                     box.rect.x += 40
+                    if pygame.sprite.spritecollideany(box, walls_group):
+                        box.rect.x -= 40
+                        player.move_left()
 
         window.fill((135, 206, 250))
         walls_group.draw(window)
