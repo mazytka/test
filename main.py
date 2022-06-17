@@ -283,8 +283,6 @@ def level_2():
                 all_sprites.empty()
                 walls_group.empty()
                 player_group.empty()
-                boxes_group.empty()
-                tiles_group.empty()
                 run = False
                 level_2()
 
