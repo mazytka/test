@@ -1,7 +1,5 @@
+import sys
 import pygame
-
-
-
 
 
 def load_level(name):
@@ -34,16 +32,46 @@ def draw_level(level_map):
     return player, x, y, box, wall,
 
 
-def draw_tile():
-    window.fill((135, 206, 250))
+def main_menu():
 
+    while True:
+        window.blit(bg, (0, 0))
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        menu_title = pygame.font.SysFont("cambria", 75).render("SOKOBAN", True, 'black')
+        menu_rect = menu_title.get_rect(center=(200, 50))
+
+        start_but = Button(start_img, 209, 160, 'START')
+        quit_but = Button(exit_img, 210, 300, 'EXIT')
+
+        window.blit(menu_title, menu_rect)
+        for button in [start_but, quit_but]:
+
+            button.changeColor(mouse_pos)
+            button.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_but.checkForInput(mouse_pos):
+                    return  False
+
+                if quit_but.checkForInput(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
+
+
+def draw_sprite():
+    window.fill((135, 206, 250))
     all_sprites.draw(window)
 
-    pygame.display.flip()
 
-
-class Move():
-
+class Move:
 
     def update(self, event, player, box):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
@@ -106,13 +134,10 @@ class Teleport(pygame.sprite.Sprite):
         self.add(all_sprites, telep_sprites)
 
 
-
-
 class Player(pygame.sprite.Sprite, Move):
     def __init__(self, pos_x, pos_y):
         super().__init__()
-        self.image = pygame.Surface((40, 40))
-        self.image.fill('red')
+        self.image = pygame.transform.scale(pygame.image.load('images/player.png'), (40, 40))
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(40 * pos_x, 40 * pos_y)
         self.speed = 40
@@ -127,7 +152,6 @@ class Player(pygame.sprite.Sprite, Move):
     def move_up(self):
         self.rect.y -= 40
 
-
     def move_down(self):
         self.rect.y += 40
 
@@ -137,7 +161,9 @@ class Player(pygame.sprite.Sprite, Move):
     def move_right(self):
         self.rect.x += 40
 
+
 class Box(pygame.sprite.Sprite, Move):
+
     def __init__(self, pos_x, pos_y):
         super().__init__(boxes_group)
         self.image = pygame.transform.scale(pygame.image.load('images/box.png'), (40, 40))
@@ -157,35 +183,48 @@ class Wall(pygame.sprite.Sprite):
         self.add(all_sprites, walls_group)
 
 
-class Button():
-    def __init__(self, x, y, image):
-        self.image = pygame.transform.scale(image, (40, 40))
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+class Button:
+    def __init__(self, image, x_pos, y_pos, text_input):
+        self.image = image
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+        self.text_input = text_input
+        self.text = main_font.render(self.text_input, True, "white")
+        self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
-    def draw(self):
-        pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(pos):
-            print(123)
+    def update(self):
+        window.blit(self.image, self.rect)
+        window.blit(self.text, self.text_rect)
 
-        window.blit(self.image, (self.rect.x, self.rect.y))
+    def checkForInput(self, position):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
+                                                                                          self.rect.bottom):
+            return True
 
+    def changeColor(self, position):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
+                                                                                          self.rect.bottom):
+            self.text = main_font.render(self.text_input, True, "green")
+        else:
+            self.text = main_font.render(self.text_input, True, "white")
 
 pygame.init()
 screen_stat = {'width': 10, 'height': 10, 'tile': 40}
 fps = 30
 title = 'Sokoban game'
-
+main_font = pygame.font.SysFont("cambria", 45)
+bg = pygame.transform.scale(pygame.image.load('images/bg.png'), (400, 400))
 display = (screen_stat['width'] * screen_stat['tile'], screen_stat['height'] * screen_stat['tile'])
 window = pygame.display.set_mode(display)
-exit_img = pygame.image.load('images/exit.png')
-start_img = pygame.image.load('images/start.png')
+exit_img = pygame.transform.scale(pygame.image.load('images/exit.png'), (136, 50))
+start_img = pygame.transform.scale(pygame.image.load('images/start.png'), (136, 60))
 pygame.display.set_caption(title)
 
 clock = pygame.time.Clock()
 
-exit_but = Button(120, 120, exit_img)
-start_but = Button(120, 120, start_img)
+
+
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -204,7 +243,8 @@ def level_1():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 all_sprites.empty()
@@ -223,9 +263,9 @@ def level_1():
 
             run = False
 
-        draw_tile()
+        draw_sprite()
 
-        pygame.display.flip()
+        pygame.display.update()
 
 
 def level_2():
@@ -236,7 +276,8 @@ def level_2():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 all_sprites.empty()
@@ -252,9 +293,12 @@ def level_2():
         if pygame.sprite.spritecollideany(box, tiles_group):
             run = False
 
-        draw_tile()
+        draw_sprite()
+
+        pygame.display.update()
 
 
 if __name__ == '__main__':
+    main_menu()
     level_1()
     level_2()
