@@ -4,13 +4,13 @@ import pygame
 
 def load_level(name):
     """Функция, принимающая имя файла уровня"""
-    fullname = name
+    fullname = 'Levels' + '/' + name
     with open(fullname, 'r') as map_file:
         level_map = []
         for line in map_file:
             line = line.strip()
             level_map.append(line)
-    return level_map
+    return level_map  # Возвращает готовый уровень из файла
 
 
 def draw_level(level_map):
@@ -23,7 +23,7 @@ def draw_level(level_map):
             elif level_map[y][x] == '*':
                 player = Player(x, y)
             elif level_map[y][x] == '&':
-                box = Box(x, y)
+                box = Box(x, y)  # Прорисовка уровня, каждому символу соответствует объект
             elif level_map[y][x] == '@':
                 Tile('images/box_space.png', x, y)
             elif level_map[y][x] == '-':
@@ -44,12 +44,11 @@ def main_menu():
         menu_title = pygame.font.SysFont("cambria", 75).render("SOKOBAN", True, 'black')
         menu_rect = menu_title.get_rect(center=(200, 50))
 
-        start_but = Button(start_img, 209, 160, 'START')
+        start_but = Button(start_img, 209, 160, 'START')  # Создание двух экземпляров класса Button
         quit_but = Button(exit_img, 210, 300, 'EXIT')
 
         window.blit(menu_title, menu_rect)
         for button in [start_but, quit_but]:
-
             button.changeColor(mouse_pos)
             button.update()
 
@@ -69,6 +68,7 @@ def main_menu():
 
 
 def game_over():
+    """Функция отображения конечного меню пользователя"""
     while True:
         window.fill((135, 206, 250))
 
@@ -143,6 +143,7 @@ def game_run(level_txt):
 
 class Move:
     """Класс для отслеживания действий персонажа с другими объектами"""
+
     def update(self, event, player, box):
         global vector
         if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
@@ -196,6 +197,7 @@ class Move:
 
 class Tile(pygame.sprite.Sprite):
     """Класс тайлов"""
+
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
         self.image = pygame.transform.scale(pygame.image.load(tile_type), (40, 40))
@@ -207,6 +209,7 @@ class Tile(pygame.sprite.Sprite):
 
 class Teleport(pygame.sprite.Sprite):
     """Класс телепорта"""
+
     def __init__(self, pos_x, pos_y):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('images/Teleport.png'), (40, 40))
@@ -217,6 +220,7 @@ class Teleport(pygame.sprite.Sprite):
 
 class Player(pygame.sprite.Sprite, Move):
     """Класс игрока"""
+
     def __init__(self, pos_x, pos_y):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('images/player.png'), (40, 40))
@@ -247,6 +251,7 @@ class Player(pygame.sprite.Sprite, Move):
 
 class Box(pygame.sprite.Sprite, Move):
     """Класс ящика"""
+
     def __init__(self, pos_x, pos_y):
         super().__init__(boxes_group)
         self.image = pygame.transform.scale(pygame.image.load('images/box.png'), (40, 40))
@@ -283,6 +288,7 @@ class Box(pygame.sprite.Sprite, Move):
 
 class Wall(pygame.sprite.Sprite):
     """Класс стены"""
+
     def __init__(self, pos_x, pos_y):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('images/wall.png'), (40, 40))
@@ -293,6 +299,7 @@ class Wall(pygame.sprite.Sprite):
 
 class Button:
     """Класс для изображения кнопок и их взаимодейсвия с курсором мыши"""
+
     def __init__(self, image, x_pos, y_pos, text_input):
         self.image = image
         self.x_pos = x_pos
@@ -328,10 +335,11 @@ main_font = pygame.font.SysFont("cambria", 45)
 bg = pygame.transform.scale(pygame.image.load('images/bg.png'), (400, 400))
 display = (screen_stat['width'] * screen_stat['tile'], screen_stat['height'] * screen_stat['tile'])
 window = pygame.display.set_mode(display)
+
 exit_img = pygame.transform.scale(pygame.image.load('images/exit.png'), (136, 50))
 start_img = pygame.transform.scale(pygame.image.load('images/start.png'), (136, 60))
-pygame.display.set_caption(title)
 
+pygame.display.set_caption(title)
 clock = pygame.time.Clock()
 goals = []
 all_sprites = pygame.sprite.Group()
@@ -342,7 +350,6 @@ boxes_group = pygame.sprite.Group()
 telep_sprites = pygame.sprite.Group()
 box_spaces = pygame.sprite.Group()
 move = Move()
-
 
 if __name__ == '__main__':
     main_menu()
