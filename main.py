@@ -1,23 +1,24 @@
+import os
 import sys
 import pygame
 
 
 def load_level(name):
     """Функция, принимающая имя файла уровня"""
-    fullname = 'Levels' + '/' + name
-    with open(fullname, 'r') as map_file:
-        level_map = []
-        for line in map_file:
+    fullname = 'Levels' + '/' + name  # Полный путь к файлу
+    with open(fullname, 'r') as map_file:  # Открытме файла
+        level_map = []  # Создание пустого списка
+        for line in map_file:  # Перебор каждой строки текстового файла
             line = line.strip()
-            level_map.append(line)
-    return level_map  # Возвращает готовый уровень из файла
+            level_map.append(line)  # Добавление строки в пустой список
+    return level_map  # Возвращает данные из файла
 
 
 def draw_level(level_map):
     """Функция отрисовки самого уровня"""
     player, x, y, box, wall, telep_ex = None, None, None, None, None, None
-    for y in range(len(level_map)):
-        for x in range(len(level_map[y])):
+    for y in range(len(level_map)): #Перебор каждой строки в текстовом файле
+        for x in range(len(level_map[y])): # Перебор каждого элемента в строке
             if level_map[y][x] == '#':
                 wall = Wall(x, y)
             elif level_map[y][x] == '*':
@@ -39,11 +40,11 @@ def draw_level(level_map):
 def main_menu():
     """Функция отображения главного меню пользователя"""
     while True:
-        window.blit(bg, (0, 0))
+        window.blit(bg, (0, 0)) # Отрисовка заднего фона стартового меню
 
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()  # Получение координат курсора
 
-        menu_title = pygame.font.SysFont("cambria", 75).render("SOKOBAN", True, 'black')
+        menu_title = pygame.font.SysFont("cambria", 75).render("SOKOBAN", True, 'black')  # Создание основного текста
         menu_rect = menu_title.get_rect(center=(200, 50))
 
         start_but = Button(start_img, 209, 160, 'START')  # Создание двух экземпляров класса Button
@@ -51,18 +52,18 @@ def main_menu():
 
         window.blit(menu_title, menu_rect)
         for button in [start_but, quit_but]:
-            button.changeColor(mouse_pos)
-            button.update()
+            button.change_color(mouse_pos)
+            button.update()     # Экземпляры класса Button получают методы
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if start_but.checkForInput(mouse_pos):
+                if start_but.check_for_input(mouse_pos):
                     return False
 
-                if quit_but.checkForInput(mouse_pos):
+                if quit_but.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
 
@@ -72,25 +73,25 @@ def main_menu():
 def game_over():
     """Функция отображения конечного меню пользователя"""
     while True:
-        window.fill((135, 206, 250))
+        window.fill((135, 206, 250)) # Отрисовка заднего фона стартового меню
 
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()  # Получение координат курсора
 
         menu_title = pygame.font.SysFont("cambria", 75).render("GAME OVER", True, 'black')
         menu_rect = menu_title.get_rect(center=(200, 50))
 
-        quit_but = Button(exit_img, 210, 300, 'EXIT')
+        quit_but = Button(exit_img, 210, 300, 'EXIT')  # Создание экземпляра класса Button
 
         window.blit(menu_title, menu_rect)
 
-        quit_but.changeColor(mouse_pos)
+        quit_but.change_color(mouse_pos)
         quit_but.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_but.checkForInput(mouse_pos):
+                if quit_but.check_for_input(mouse_pos):
                     pygame.quit()
                     sys.exit()
 
@@ -106,18 +107,18 @@ def draw_sprite():
 
 def game_run(level_txt):
     global goals
-    player, level_x, level_y, box, wall, telep_ex = draw_level(load_level(level_txt))
+    player, level_x, level_y, box, wall, telep_ex = draw_level(load_level(level_txt))   #Загрузка уровня
     run = True
-    lst = []
+
     while run:
         clock.tick(fps)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:  # Выход из игры
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:  # Рестарт уровня при нажатии на кнопку R
                 all_sprites.empty()
                 walls_group.empty()
                 player_group.empty()
@@ -127,18 +128,18 @@ def game_run(level_txt):
                 run = False
                 game_run(level_txt)
 
-            move.update(event, player, box)
+            move.update(event, player, box)  # Обработка всех передвижений в уровне
 
-        if pygame.sprite.groupcollide(boxes_group, box_spaces, True, True):
-            if not box_spaces.sprites():
+        if pygame.sprite.groupcollide(boxes_group, box_spaces, True, True):  # Проверка на столкновение ящика с указанной точкой
+            if not box_spaces.sprites():  # Если все точки заняты ящиками, то происходит выход из цикла
                 all_sprites.empty()
                 player_group.empty()
                 walls_group.empty()
                 telep_sprites.empty()
                 run = False
 
-        if pygame.sprite.spritecollideany(player, telep_sprites):
-            player.rect.x, player.rect.y = telep_ex.rect.x,  telep_ex.rect.y
+        if pygame.sprite.spritecollideany(player, telep_sprites):  # Проверка на столкновение игрока с телепортом
+            player.rect.x, player.rect.y = telep_ex.rect.x, telep_ex.rect.y  # Перенос персонажа в соответствующую точку
 
         draw_sprite()
 
@@ -240,7 +241,6 @@ class Player(pygame.sprite.Sprite, Move):
         self.image = pygame.transform.scale(pygame.image.load('images/player.png'), (40, 40))
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(40 * pos_x, 40 * pos_y)
-        self.speed = 40
         self.add(player_group, all_sprites)
         self.x = pos_x
         self.y = pos_y
@@ -266,8 +266,6 @@ class Box(pygame.sprite.Sprite, Move):
         self.image = pygame.transform.scale(pygame.image.load('images/box.png'), (40, 40))
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(40 * pos_x, 40 * pos_y)
-        self.pos_x = pos_x
-        self.pos_y = pos_y
         self.add(all_sprites, boxes_group)
 
     def update(self, *args):
@@ -336,12 +334,12 @@ class Button:
         window.blit(self.image, self.rect)
         window.blit(self.text, self.text_rect)
 
-    def checkForInput(self, position):
+    def check_for_input(self, position):
         if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
                                                                                           self.rect.bottom):
             return True
 
-    def changeColor(self, position):
+    def change_color(self, position):
         if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
                                                                                           self.rect.bottom):
             self.text = main_font.render(self.text_input, True, "green")
@@ -358,6 +356,9 @@ main_font = pygame.font.SysFont("cambria", 45)
 bg = pygame.transform.scale(pygame.image.load('images/bg.png'), (400, 400))
 display = (screen_stat['width'] * screen_stat['tile'], screen_stat['height'] * screen_stat['tile'])
 window = pygame.display.set_mode(display)
+
+dir_name = 'Levels'
+files = os.listdir(dir_name)
 
 exit_img = pygame.transform.scale(pygame.image.load('images/exit.png'), (136, 50))
 start_img = pygame.transform.scale(pygame.image.load('images/start.png'), (136, 60))
@@ -376,8 +377,6 @@ move = Move()
 
 if __name__ == '__main__':
     main_menu()
-    game_run('level1.txt')
-    game_run('level2.txt')
-    game_run('level3.txt')
-    game_run('level4.txt')
+    for file in files:
+        game_run(file)
     game_over()
