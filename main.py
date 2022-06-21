@@ -17,8 +17,8 @@ def load_level(name):
 def draw_level(level_map):
     """Функция отрисовки самого уровня"""
     player, x, y, box, wall, telep_ex = None, None, None, None, None, None
-    for y in range(len(level_map)): #Перебор каждой строки в текстовом файле
-        for x in range(len(level_map[y])): # Перебор каждого элемента в строке
+    for y in range(len(level_map)):  # Перебор каждой строки в текстовом файле
+        for x in range(len(level_map[y])):  # Перебор каждого элемента в строке
             if level_map[y][x] == '#':
                 wall = Wall(x, y)
             elif level_map[y][x] == '*':
@@ -40,7 +40,7 @@ def draw_level(level_map):
 def main_menu():
     """Функция отображения главного меню пользователя"""
     while True:
-        window.blit(bg, (0, 0)) # Отрисовка заднего фона стартового меню
+        window.blit(bg, (0, 0))  # Отрисовка заднего фона стартового меню
 
         mouse_pos = pygame.mouse.get_pos()  # Получение координат курсора
 
@@ -53,7 +53,7 @@ def main_menu():
         window.blit(menu_title, menu_rect)
         for button in [start_but, quit_but]:
             button.change_color(mouse_pos)
-            button.update()     # Экземпляры класса Button получают методы
+            button.update()  # Экземпляры класса Button получают методы
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,7 +73,7 @@ def main_menu():
 def game_over():
     """Функция отображения конечного меню пользователя"""
     while True:
-        window.fill((135, 206, 250)) # Отрисовка заднего фона стартового меню
+        window.fill((135, 206, 250))  # Отрисовка заднего фона стартового меню
 
         mouse_pos = pygame.mouse.get_pos()  # Получение координат курсора
 
@@ -107,7 +107,7 @@ def draw_sprite():
 
 def game_run(level_txt):
     global goals
-    player, level_x, level_y, box, wall, telep_ex = draw_level(load_level(level_txt))   #Загрузка уровня
+    player, level_x, level_y, box, wall, telep_ex = draw_level(load_level(level_txt))  # Загрузка уровня
     run = True
 
     while run:
@@ -130,7 +130,8 @@ def game_run(level_txt):
 
             move.update(event, player, box)  # Обработка всех передвижений в уровне
 
-        if pygame.sprite.groupcollide(boxes_group, box_spaces, True, True):  # Проверка на столкновение ящика с указанной точкой
+        if pygame.sprite.groupcollide(boxes_group, box_spaces, True, True):  # Проверка на столкновение ящика с
+            # указанной точкой
             if not box_spaces.sprites():  # Если все точки заняты ящиками, то происходит выход из цикла
                 all_sprites.empty()
                 player_group.empty()
